@@ -1,0 +1,26 @@
+version: 2
+
+sources:
+  - name: raw
+    database: warehouse
+    schema: raw
+    description: "Raw tables ingested from synthetic retail data via dlt pipeline"
+    
+    tables:
+      - name: customers
+        description: "Raw customer records generated to match Shopify customer schema"
+        
+      - name: products
+        description: "Raw product catalog for SV8 Athletics — 60 products across 6 categories"
+        
+      - name: orders
+        description: "Raw order records including status, discount, and pricing"
+        
+      - name: order_line_items
+        description: "Raw line items — one row per product per order"
+        
+      - name: reviews
+        description: "Raw customer reviews with delivery delay and rating"
+        
+      - name: date_dimension
+        description: "Date dimension table covering 2023-01-01 to 2024-12-31"

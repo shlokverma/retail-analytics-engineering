@@ -1,0 +1,205 @@
+version: 2
+
+models:
+  - name: int_orders_enriched
+    description: "Orders enriched with customer attributes, date dimensions, and derived business logic fields. One row per order. Foundation model for retention and fulfillment marts."
+    columns:
+      - name: order_id
+        description: "Primary key — unique order identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key referencing stg_customers.customer_id."
+        data_tests:
+          - not_null
+      - name: order_date
+        description: "Date the order was placed."
+        data_tests:
+          - not_null
+      - name: status
+        description: "Order status — fulfilled, cancelled, or refunded."
+        data_tests:
+          - not_null
+      - name: discount_code
+        description: "Discount code applied to the order. NULL if no discount was used."
+      - name: discount_used
+        description: "True if a discount code was applied to this order."
+        data_tests:
+          - not_null
+      - name: discount_amount
+        description: "Dollar amount discounted from the order subtotal."
+        data_tests:
+          - not_null
+      - name: subtotal
+        description: "Order subtotal before discount is applied."
+        data_tests:
+          - not_null
+      - name: total_price
+        description: "Final order total after discount is applied."
+        data_tests:
+          - not_null
+      - name: cancelled_at
+        description: "Date the order was cancelled. NULL if order was not cancelled."
+      - name: is_cancelled
+        description: "True if order status is cancelled. Derived from status = cancelled."
+        data_tests:
+          - not_null
+      - name: is_refunded
+        description: "True if order status is refunded. Derived from status = refunded."
+        data_tests:
+          - not_null
+      - name: recognized_revenue
+        description: "Revenue recognized from this order. Full total_price for fulfilled orders, negative total_price for refunded orders, 0 for cancelled orders."
+        data_tests:
+          - not_null
+      - name: province
+        description: "Canadian province of the customer who placed the order. Joined from stg_customers."
+        data_tests:
+          - not_null
+      - name: accepts_marketing
+        description: "True if the customer opted into marketing communications. Joined from stg_customers."
+        data_tests:
+          - not_null
+      - name: year
+        description: "Calendar year of the order date. Joined from stg_date_dimension."
+        data_tests:
+          - not_null
+      - name: quarter
+        description: "Calendar quarter of the order date, 1-4."
+        data_tests:
+          - not_null
+      - name: month_number
+        description: "Numeric month of the order date, 1-12."
+        data_tests:
+          - not_null
+      - name: is_weekend
+        description: "True if the order was placed on a Saturday or Sunday."
+        data_tests:
+          - not_null
+      - name: day_of_week
+        description: "Name of the day the order was placed e.g. Monday, Tuesday."
+        data_tests:
+          - not_null
+
+  - name: int_customer_orders
+    description: "One row per customer aggregating their full order history. Built on top of int_orders_enriched. Excludes cancelled orders from order counts and revenue. Foundation model for all customer retention marts."
+    columns:
+      - name: customer_id
+        description: "Primary key — unique customer identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: province
+        description: "Canadian province of the customer."
+        data_tests:
+          - not_null
+      - name: accepts_marketing
+        description: "True if the customer opted into marketing communications at signup."
+        data_tests:
+          - not_null
+      - name: customer_created_at
+        description: "Date the customer account was created."
+        data_tests:
+          - not_null
+      - name: total_orders
+        description: "Total number of non-cancelled orders placed by this customer."
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: "Sum of recognized revenue across all non-cancelled orders for this customer."
+        data_tests:
+          - not_null
+      - name: first_order_date
+        description: "Date of the customer's first order. NULL if customer has never ordered."
+      - name: second_order_date
+        description: "Date of the customer's second order. NULL if customer has placed fewer than 2 orders."
+      - name: days_since_last_order
+        description: "Number of days between the customer's most recent order and the dataset end date of 2024-12-31. In production would use CURRENT_DATE."
+      - name: days_to_second_order
+        description: "Number of days between the customer's first and second order. NULL if customer has placed fewer than 2 orders."
+
+  - name: int_product_metrics
+    description: "Product performance metrics aggregated to product and month grain. One row per product per month. Excludes cancelled orders. Foundation model for all product performance marts."
+    columns:
+      - name: product_id
+        description: "Product identifier. Foreign key referencing stg_products.product_id."
+        data_tests:
+          - not_null
+      - name: product_name
+        description: "Product name."
+        data_tests:
+          - not_null
+      - name: product_type
+        description: "Product category — one of six apparel categories."
+        data_tests:
+          - not_null
+      - name: year
+        description: "Calendar year of the orders contributing to this row."
+        data_tests:
+          - not_null
+      - name: month_number
+        description: "Numeric month of the orders contributing to this row, 1-12."
+        data_tests:
+          - not_null
+      - name: total_revenue
+        description: "Sum of line subtotals for this product in this month. Excludes cancelled orders."
+        data_tests:
+          - not_null
+      - name: qty_sold
+        description: "Total units sold of this product in this month. Excludes cancelled orders."
+        data_tests:
+          - not_null
+      - name: order_count
+        description: "Number of distinct orders containing this product in this month."
+        data_tests:
+          - not_null
+      - name: avg_rating
+        description: "Average review rating for this product in this month. NULL if no reviews exist for this product in this month."
+
+  - name: int_reviews_enriched
+    description: "Customer reviews enriched with delivery delay buckets and order context. One row per review. Base table for fulfillment experience marts."
+    columns:
+      - name: review_id
+        description: "Primary key — unique review identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Foreign key referencing stg_orders.order_id."
+        data_tests:
+          - not_null
+      - name: customer_id
+        description: "Foreign key referencing stg_customers.customer_id."
+        data_tests:
+          - not_null
+      - name: product_id
+        description: "Foreign key referencing stg_products.product_id."
+        data_tests:
+          - not_null
+      - name: rating
+        description: "Customer review rating from 1 to 5."
+        data_tests:
+          - not_null
+      - name: review_text
+        description: "Free text review comment."
+      - name: delivery_delay_days
+        description: "Number of days between order placement and delivery."
+        data_tests:
+          - not_null
+      - name: review_date
+        description: "Date the review was submitted."
+        data_tests:
+          - not_null
+      - name: delay_bucket
+        description: "Delivery delay classification. fast = 0-5 days, mild = 6-10 days, long = 11+ days."
+        data_tests:
+          - not_null
+      - name: month_number
+        description: "Numeric month of the order date, 1-12. Joined from int_orders_enriched."
+      - name: year
+        description: "Calendar year of the order date. Joined from int_orders_enriched."
+      - name: province
+        description: "Canadian province of the customer. Joined from int_orders_enriched."
+      - name: is_cancelled
+        description: "True if the order was cancelled. Joined from int_orders_enriched. Should always be false since reviews are only generated for fulfilled orders."

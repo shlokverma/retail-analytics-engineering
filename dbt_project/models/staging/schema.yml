@@ -1,0 +1,270 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Cleaned and typed customer records from raw source. One row per customer."
+    columns:
+      - name: customer_id
+        description: "Primary key — unique customer identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: email
+        description: "Customer email address."
+        data_tests:
+          - not_null
+      - name: first_name
+        description: "Customer first name, whitespace trimmed."
+        data_tests:
+          - not_null
+      - name: last_name
+        description: "Customer last name, whitespace trimmed."
+        data_tests:
+          - not_null
+      - name: city
+        description: "City of the customer, whitespace trimmed."
+        data_tests:
+          - not_null
+      - name: province
+        description: "Canadian province of the customer."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Ontario", "Quebec", "British Columbia", "Alberta",
+                        "Manitoba", "Saskatchewan", "Nova Scotia", "New Brunswick",
+                        "Newfoundland and Labrador", "Prince Edward Island"]
+      - name: country
+        description: "Country of the customer. All customers are Canadian in this dataset."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Canada"]
+      - name: created_at
+        description: "Date the customer account was created."
+        data_tests:
+          - not_null
+      - name: accepts_marketing
+        description: "True if the customer opted into marketing communications at signup."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+
+  - name: stg_orders
+    description: "Cleaned and typed order records from raw source. One row per order."
+    columns:
+      - name: order_id
+        description: "Primary key — unique order identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key referencing stg_customers.customer_id."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_date
+        description: "Date the order was placed, cast from raw timestamp."
+        data_tests:
+          - not_null
+      - name: status
+        description: "Current order status. fulfilled = delivered, cancelled = customer cancelled, refunded = money returned."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["fulfilled", "cancelled", "refunded"]
+      - name: discount_code
+        description: "Discount code applied to the order. NULL indicates no discount was used."
+      - name: discount_used
+        description: "True if a discount code was applied to this order. Derived from discount_code is not null."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]
+      - name: discount_amount
+        description: "Dollar amount discounted from the order subtotal. 0.00 if no discount applied."
+        data_tests:
+          - not_null
+      - name: subtotal
+        description: "Order subtotal before discount is applied."
+        data_tests:
+          - not_null
+      - name: total_price
+        description: "Final order total after discount is applied."
+        data_tests:
+          - not_null
+      - name: cancelled_at
+        description: "Date the order was cancelled. NULL indicates the order was not cancelled."
+
+  - name: stg_products
+    description: "Cleaned and typed product catalog from raw source. One row per product."
+    columns:
+      - name: product_id
+        description: "Primary key — unique product identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: "Product name, whitespace trimmed. Unique per product."
+        data_tests:
+          - unique
+          - not_null
+      - name: product_type
+        description: "Product category. One of six apparel categories."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Outerwear", "Activewear", "Footwear",
+                        "Bottoms", "Tops", "Accessories"]
+      - name: vendor_country
+        description: "Country where the product is manufactured."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Canada", "Vietnam", "China", "Portugal", "Bangladesh"]
+      - name: price
+        description: "Product base price in CAD."
+        data_tests:
+          - not_null
+
+  - name: stg_order_line_items
+    description: "Cleaned and typed order line items from raw source. One row per product per order."
+    columns:
+      - name: line_item_id
+        description: "Primary key — unique line item identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Foreign key referencing stg_orders.order_id."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+      - name: product_id
+        description: "Foreign key referencing stg_products.product_id."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: quantity
+        description: "Number of units of this product purchased in the order."
+        data_tests:
+          - not_null
+      - name: unit_price
+        description: "Price per unit of the product at time of purchase in CAD."
+        data_tests:
+          - not_null
+      - name: line_subtotal
+        description: "Total value of this line item — unit_price multiplied by quantity."
+        data_tests:
+          - not_null
+
+  - name: stg_reviews
+    description: "Cleaned and typed customer reviews from raw source. One row per review. Only fulfilled orders receive reviews."
+    columns:
+      - name: review_id
+        description: "Primary key — unique review identifier."
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Foreign key referencing stg_orders.order_id."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+      - name: customer_id
+        description: "Foreign key referencing stg_customers.customer_id."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: product_id
+        description: "Foreign key referencing stg_products.product_id."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: rating
+        description: "Customer rating from 1 to 5. Correlates with delivery delay — longer delays produce lower ratings."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+      - name: review_text
+        description: "Free text review comment. No validation applied."
+      - name: delivery_delay_days
+        description: "Number of days between order placement and delivery."
+        data_tests:
+          - not_null
+      - name: review_date
+        description: "Date the review was submitted, typically a few days after delivery."
+        data_tests:
+          - not_null
+
+  - name: stg_date_dimension
+    description: "Date dimension table covering 2023-01-01 to 2024-12-31. One row per calendar date."
+    columns:
+      - name: date_id
+        description: "Primary key — date in YYYYMMDD integer format e.g. 20230115."
+        data_tests:
+          - unique
+          - not_null
+      - name: full_date
+        description: "Full calendar date in DATE format."
+        data_tests:
+          - unique
+          - not_null
+      - name: day_of_week
+        description: "Name of the day e.g. Monday, Tuesday."
+        data_tests:
+          - not_null
+      - name: day_of_month
+        description: "Numeric day of the month, 1-31."
+        data_tests:
+          - not_null
+      - name: month_number
+        description: "Numeric month, 1-12."
+        data_tests:
+          - not_null
+      - name: month_name
+        description: "Full month name e.g. January, February."
+        data_tests:
+          - not_null
+      - name: quarter
+        description: "Fiscal quarter, 1-4."
+        data_tests:
+          - not_null
+      - name: year
+        description: "Calendar year e.g. 2023, 2024."
+        data_tests:
+          - not_null
+      - name: is_weekend
+        description: "True if the date falls on a Saturday or Sunday."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true, false]

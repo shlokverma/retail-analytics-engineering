@@ -1,0 +1,29 @@
+# DuckDB
+warehouse.duckdb
+warehouse.duckdb.wal
+
+# dlt secrets
+.dlt/secrets.toml
+.dlt/
+
+# dbt
+dbt_project/target/
+dbt_project/logs/
+dbt_project/dbt_packages/
+
+# Evidence
+evidence-dashboard/.evidence/
+evidence-dashboard/node_modules/
+evidence-dashboard/.svelte-kit/
+evidence-dashboard/build/
+evidence-dashboard/sources/marts/*.csv
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Mac
+.DS_Store
+data_generation/*.csv
+logs/

@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: mart_delivery_performance
+    description: "Monthly delivery delay rate, average delay, and cancellation rate. Delivery metrics are calculated from reviewed orders only — approximately 45% of fulfilled orders. Audience: operations and customer success teams."
+    columns:
+      - name: year
+        description: "Calendar year."
+      - name: month_number
+        description: "Numeric month, 1-12."
+      - name: total_reviewed_orders
+        description: "Count of distinct orders with a review in this month. Delivery delay metrics are calculated from this subset only."
+      - name: delayed_orders
+        description: "Count of orders where delivery took more than 5 days."
+      - name: avg_delay_days
+        description: "Average number of days between order placement and delivery for reviewed orders in this month."
+      - name: delayed_order_rate
+        description: "Percentage of reviewed orders with a delivery delay greater than 5 days in this month."
+      - name: total_orders
+        description: "Total count of all orders in this month including cancelled and refunded. Used as denominator for cancellation rate."
+      - name: cancelled_orders
+        description: "Count of orders with status = cancelled in this month."
+      - name: cancellation_rate
+        description: "Percentage of total orders that were cancelled in this month."
+
+  - name: mart_rating _by_delay
+    description: "Average review rating and review volume by delivery delay bucket and month. Used to quantify the impact of delivery delays on customer satisfaction. Audience: operations and customer success teams."
+    columns:
+      - name: delay_bucket
+        description: "Delivery delay classification. fast = 0-5 days, mild = 6-10 days, long = 11+ days."
+      - name: year
+        description: "Calendar year."
+      - name: month_number
+        description: "Numeric month, 1-12."
+      - name: avg_rating
+        description: "Average review rating for orders in this delay bucket and month. Key metric — lower ratings for longer delay buckets confirms delivery experience impacts satisfaction."
+      - name: review_count
+        description: "Number of reviews contributing to the average rating in this delay bucket and month. Low review counts should be interpreted with caution."
