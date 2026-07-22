@@ -13,18 +13,21 @@ An end-to-end retail analytics pipeline simulating the data infrastructure of a 
 | Dashboard | Evidence.dev | SQL-first analytics dashboards |
 
 ## Project Structure
+
+```
 retail-analytics-engineering/
-├── data_generation/ # Python scripts to generate synthetic retail data
-├── ingestion/ # dlt pipeline to load CSVs into DuckDB
-├── dbt_project/ # dbt models — staging, intermediate, marts
-│ └── models/
-│ ├── staging/ # 6 models — clean and type raw sources
-│ ├── intermediate/ # 4 models — joins and business logic
-│ └── marts/ # 12 models across 3 domains
-│ ├── customer_retention/
-│ ├── product_performance/
-│ └── fulfillment_experience/
-└── evidence-dashboard/ # Evidence.dev dashboard pages
+├── data_generation/        # Python scripts to generate synthetic retail data
+├── ingestion/              # dlt pipeline to load CSVs into DuckDB
+├── dbt_project/            # dbt models — staging, intermediate, marts
+│   └── models/
+│       ├── staging/        # 6 models — clean and type raw sources
+│       ├── intermediate/   # 4 models — joins and business logic
+│       └── marts/          # 12 models across 3 domains
+│           ├── customer_retention/
+│           ├── product_performance/
+│           └── fulfillment_experience/
+└── evidence-dashboard/     # Evidence.dev dashboard pages
+```
 
 ## The Data
 
