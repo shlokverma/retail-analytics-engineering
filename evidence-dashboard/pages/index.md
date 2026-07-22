@@ -1,8 +1,7 @@
 ---
-title: SV8 Athletics — Retail Analytics
+title: Retail Analytics Engineering
 ---
 
-# Retail Analytics Engineering
 ## A end-to-end analytics pipeline for a simulated DTC apparel brand
 
 Retail companies sit on enormous transactional data but struggle to turn it into decisions. This project builds the analytics foundation that bridges that gap — clean dimensional models, tested pipelines, and business-ready dashboards that answer the questions a growth team, merchandising team, and ops team actually ask.

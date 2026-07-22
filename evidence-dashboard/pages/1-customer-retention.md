@@ -1,7 +1,5 @@
 ---
 title: Customer Retention
-queries:
-  hide: true
 ---
 
 Understanding how SV8 Athletics acquires and retains customers over time.

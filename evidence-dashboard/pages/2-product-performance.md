@@ -1,7 +1,5 @@
 ---
 title: Product Performance
-queries:
-  hide: true
 ---
 
 Understanding which products and categories drive revenue, satisfaction, and catalogue breadth for SV8 Athletics.

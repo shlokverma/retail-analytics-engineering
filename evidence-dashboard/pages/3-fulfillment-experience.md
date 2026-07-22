@@ -1,7 +1,5 @@
 ---
 title: Fulfillment Experience
-queries:
-  hide: true
 ---
 
 Understanding how delivery performance impacts customer satisfaction at SV8 Athletics.
