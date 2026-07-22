@@ -2,6 +2,10 @@
 
 An end-to-end retail analytics pipeline simulating the data infrastructure of a modern DTC apparel brand — from synthetic data generation to business-ready dashboards.
 
+## Live Dashboard
+
+**[→ View Dashboard](https://sv8-retail-analytics.netlify.app/)**
+
 ## The Stack
 
 | Layer | Tool | Purpose |
@@ -82,4 +86,4 @@ npm run dev
 
 ## Author
 
-Shlok Verma · [LinkedIn](https://linkedin.com/in/shlokverma) · [Portfolio](https://5hlok.com)
+Shlok Verma · [LinkedIn](https://linkedin.com/in/shlokverma) · [Portfolio](https://5hlok.com) · [Live Dashboard](https://sv8-retail-analytics.netlify.app/)
